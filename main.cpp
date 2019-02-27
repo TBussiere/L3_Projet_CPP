@@ -1,5 +1,5 @@
 #include "main.hpp"
 
-main::main() {}
-
-main::~main() {}
+int main() {
+	return 0
+}
