@@ -169,6 +169,7 @@ int Jeu::moveVoiture(int** board, int id, bool direction) {
 }
 
 std::vector<int> Jeu::list_move(int** board) {
+	std::vector<int> v_move;
 	for (int id = 1; id <= this->nbVoiture; id++) {
 		int l = this->getLenVoiture(board, id);
 		int x, y;
@@ -259,3 +260,46 @@ void Jeu::BFS(int** board){
 		
 	}
 }
+
+bool Jeu::dejaVu(int** board) {
+	// test si le board a deja ete vu
+	// si non ajout dans la list des vus
+	int nbv = this->nbVoiture;
+
+	std::string aTestString = "";
+
+	// on construit un string qui correspond au board
+	for (int id = 1; id < nbv; ++id) {
+		aTestString += std::to_string(this->getFirstX(board, id)); aTestString += " ";
+		aTestString += std::to_string(this->getFirstY(board, id)); aTestString += " ";
+		aTestString += std::to_string(this->getLenVoiture(board, id)); aTestString += " ";
+		aTestString += std::to_string(this->getOrientationVoiture(board, id)); aTestString += " ";
+	}
+
+	std::vector<std::string> dejaVus = this->dejaVus;
+	// on compare le string a tous les string contenu dans dejaVus
+	for (int i = 0; i < dejaVus.size(); ++i) {
+		if (dejaVus[i] == aTestString)
+			return true;
+	}
+
+	// si le string est nouveau => on l'ajoute
+	this->dejaVus.push_back(aTestString);
+	return false;
+}
+
+// void Jeu::ajoutVu(int** board) {
+// 	std::vector<std::string> dejaVus = this->dejaVus;
+// 	int nbv = this->nbVoiture;
+
+// 	std::string str = "";
+
+// 	for (int id = 1; id < nbv; ++id) {
+// 		str += std::to_string(this->getFirstX(board, id));
+// 		str += std::to_string(this->getFirstY(board, id));
+// 		str += std::to_string(this->getLenVoiture(board, id));
+// 		str += std::to_string(this->getOrientationVoiture(board, id));
+// 	}
+
+// 	this->dejaVus.push_back(str);
+// }
