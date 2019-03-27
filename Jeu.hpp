@@ -8,11 +8,13 @@ class Jeu {
         int** board;
         int whidth = 6;
     	int height = 6;
+        int winx = 2;
+        int winy = 1;
         int nbVoiture;
         std::vector<std::string> dejaVus;
 
 
-	    Jeu(std::string path);
+	    Jeu(char* path);
         void addVoiture(int** board, int id, bool verti, int l, int x, int y);
         bool getOrientationVoiture(int** board, int id);
         int getLenVoiture(int** board, int id);

@@ -1,21 +1,50 @@
 #include "Jeu.hpp"
-#include <string>
 #include <iostream>
 #include <vector>
+#include <fstream>
 
-Jeu::Jeu(std::string path){
-	this->whidth = 6;
-	this->height = 6;
-	this->nbVoiture = 2;
+Jeu::Jeu(char* path){
 
 	this->board = new int*[this->whidth];
 	for(int i = 0; i < this->whidth; ++i)
 		this->board[i] = new int[this->height];
-
+	
 	for (int i = 0; i < whidth; ++i) {
 		for (int j = 0; j < height; ++j) {
 			this->board[i][j] = 0;
 		}
+	}
+
+	this->whidth = 6;
+	this->height = 6;
+	this->nbVoiture = 0;
+	
+	try
+	{
+		std::ifstream myfile;
+  		myfile.open(path);
+		int a, b, c, d;
+		myfile >> this->winx >> this->winy;
+		int id = 1;
+		while (myfile >> a >> b >> c >> d)
+		{
+			bool verti = false;
+			if (d == 1) {
+				verti = true;
+			}
+			else
+			{
+				verti = false;
+			}
+			// board, id voiture, orientation true=>vertical, longueur, x, y
+			this->addVoiture(board,id++,verti,c,a,b);
+			this->nbVoiture++;
+		}
+
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
 	}
 }
 
@@ -241,8 +270,9 @@ void Jeu::disp(int** board){
 }
 
 bool Jeu::BFS(int** board){
+	system("pause");
 	std::vector<int> result = this->list_move(board);
-	
+	system("pause");
 	for(int i = 0; i < result.size(); i+=2)
 	{
 		int ** nboard = new int*[this->whidth];
@@ -269,6 +299,8 @@ bool Jeu::BFS(int** board){
 		{
 			this->moveVoiture(nboard,result[i],avancer);
 		}
+		this->disp(board);
+		system("pause");
 		if (this->checkWin(nboard)) {
 			return true;
 		}
@@ -278,17 +310,17 @@ bool Jeu::BFS(int** board){
 			delete nboard;
 			continue;
 		}
-		else
-		{
-			this->ajoutVu(nboard);
-		}
+
 		if (BFS(nboard)) {
 			return true;
 		}
+		else
+		{
+			return false;
+		}
+		
 	}
 }
-<<<<<<< HEAD
-
 bool Jeu::dejaVu(int** board) {
 	// test si le board a deja ete vu
 	// si non ajout dans la list des vus
@@ -336,5 +368,5 @@ bool Jeu::dejaVu(int** board) {
 //TODO
 //==================
 bool Jeu::checkWin(int** board){
-	return false;
+	return board[this->winx][this->winy] == 1;	
 }
