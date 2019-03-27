@@ -9,6 +9,8 @@ class Jeu {
         int** board;
         int whidth = 6;
     	int height = 6;
+        int nbVoiture;
+        std::vector<int **> dejaVus;
 
 	    Jeu(std::string path);
         void addVoiture(int** board, int id, bool verti, int l, int x, int y);
@@ -17,7 +19,11 @@ class Jeu {
         int getFirstX(int** board, int id);
         int getFirstY(int** board, int id);
         int moveVoiture(int** board, int id, bool direction);
-        std::vector<int> list_move(int** board, int nbVoiture);
+        std::vector<int> list_move(int** board);
+        bool dejaVu(int** board);
+        void ajoutVu(int** board);
+
+        void BFS(int** board);
 
         void disp(int** board);
 
