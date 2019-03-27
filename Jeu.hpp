@@ -10,7 +10,7 @@ class Jeu {
         int whidth = 6;
     	int height = 6;
         int nbVoiture;
-        std::vector<int **> dejaVu;
+        std::vector<int **> dejaVus;
 
 	    Jeu(std::string path);
         void addVoiture(int** board, int id, bool verti, int l, int x, int y);
