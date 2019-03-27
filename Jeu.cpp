@@ -100,7 +100,7 @@ int Jeu::getLenVoiture(int** board, int id) {
 				int b = 0;
 				int len = 0;
 
-				while(board[i+a][j+b] == id) {
+				while(i+a < 6 && j+b && board[i+a][j+b] == id) {
 				    len++;
 				    if (orientation) {
 						b++;
@@ -207,6 +207,7 @@ std::vector<int> Jeu::list_move(int** board) {
 		// todo
 		// a optimiser pour eviter de chercher plusieurs fois les pos des voitures
 		// lors de la recherche de la longueur de la voiture, etc.
+
 		for (int i = 0; i < 6; ++i) {
 			for (int j = 0; j < 6; ++j) {
 				if (board[i][j] == id && !trouve) {
@@ -223,14 +224,14 @@ std::vector<int> Jeu::list_move(int** board) {
 
 		if (ori) {
 			// std::cout << x << "/" << y << "/" << l << std::endl;
-			while(board[x][y+l-1+a] == 0 && y+l-1+a < 6) {
+			while(y+l-1+a < 6 && board[x][y+l-1+a] == 0) {
 				// std::cout << "cout possible + : " << id << "/" << a << std::endl;
 				v_move.push_back(id);
 				v_move.push_back(a);
 				a++;
 			}
 
-			while(board[x][y+b] == 0 && y+b >= 0) {
+			while(y+b >= 0 && board[x][y+b] == 0) {
 				// std::cout << "cout possible - : " << id << "/" << b << std::endl;
 				v_move.push_back(id);
 				v_move.push_back(b);
@@ -239,7 +240,7 @@ std::vector<int> Jeu::list_move(int** board) {
 			
 		} else {
 			// std::cout << x << "/" << y << "/" << l << std::endl;
-			while(board[x+l-1+a][y] == 0 && x+l-1+a < 6) {
+			while(x+l-1+a < 6 && board[x+l-1+a][y] == 0) {
 				// std::cout << "cout possible + : " << id << "/" << a << " | " << 9 << std::endl;
 				v_move.push_back(id);
 				v_move.push_back(a);
@@ -247,7 +248,7 @@ std::vector<int> Jeu::list_move(int** board) {
 			}
 
 			// std::cout << "test - : " << id << "/" << b << " | " << x-1+b << std::endl;
-			while(board[x+b][y] == 0 && x+b >= 0) {
+			while(x+b >= 0 && board[x+b][y] == 0) {
 				// std::cout << "cout possible - : " << id << "/" << b << std::endl;
 				v_move.push_back(id);
 				v_move.push_back(b);
@@ -270,9 +271,9 @@ void Jeu::disp(int** board){
 }
 
 bool Jeu::BFS(int** board){
-	system("pause");
+	// system("pause");
 	std::vector<int> result = this->list_move(board);
-	system("pause");
+	// system("pause");
 	for(int i = 0; i < result.size(); i+=2)
 	{
 		int ** nboard = new int*[this->whidth];
@@ -300,27 +301,31 @@ bool Jeu::BFS(int** board){
 			this->moveVoiture(nboard,result[i],avancer);
 		}
 		this->disp(board);
-		system("pause");
+		// system("pause");
 		if (this->checkWin(nboard)) {
 			return true;
 		}
 		
 
 		if (this->dejaVu(nboard)) {
-			delete nboard;
+			delete[] nboard;
 			continue;
 		}
 
 		if (BFS(nboard)) {
+			delete[] nboard;
+			std::cout << "test" << std::endl;
 			return true;
 		}
 		else
 		{
+			delete[] nboard;
 			return false;
 		}
 		
 	}
 }
+
 bool Jeu::dejaVu(int** board) {
 	// test si le board a deja ete vu
 	// si non ajout dans la list des vus
