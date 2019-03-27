@@ -240,14 +240,14 @@ void Jeu::disp(int** board){
 	}
 }
 
-void Jeu::BFS(int** board){
+bool Jeu::BFS(int** board){
 	std::vector<int> result = this->list_move(board);
 	
 	for(int i = 0; i < result.size(); i+=2)
 	{
 		int ** nboard = new int*[this->whidth];
-		for(int i = 0; i < this->whidth; ++i)
-			nboard[i] = new int[this->height];
+		for(int j = 0; j < this->whidth; ++i)
+			nboard[j] = new int[this->height];
 
 		for(int j = 0; j < this->whidth; j++)
 		{
@@ -256,10 +256,38 @@ void Jeu::BFS(int** board){
 				nboard[j][k] = board[j][k];
 			}
 		}
-
+		bool avancer = false;
+		if (result[i+1] > 0) {
+			avancer = true;
+		}
+		else
+		{
+			avancer = false;
+			result[i+1] *= -1; 
+		}
+		for(int j = 0; j < result[i+1]; j++)
+		{
+			this->moveVoiture(nboard,result[i],avancer);
+		}
+		if (this->checkWin(nboard)) {
+			return true;
+		}
 		
+
+		if (this->dejaVu(nboard)) {
+			delete nboard;
+			continue;
+		}
+		else
+		{
+			this->ajoutVu(nboard);
+		}
+		if (BFS(nboard)) {
+			return true;
+		}
 	}
 }
+<<<<<<< HEAD
 
 bool Jeu::dejaVu(int** board) {
 	// test si le board a deja ete vu
@@ -303,3 +331,10 @@ bool Jeu::dejaVu(int** board) {
 
 // 	this->dejaVus.push_back(str);
 // }
+
+//==================
+//TODO
+//==================
+bool Jeu::checkWin(int** board){
+	return false;
+}

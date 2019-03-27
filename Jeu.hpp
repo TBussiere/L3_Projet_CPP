@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 
-class Board;
 class Jeu {
     public :
         int** board;
@@ -11,6 +10,7 @@ class Jeu {
     	int height = 6;
         int nbVoiture;
         std::vector<std::string> dejaVus;
+
 
 	    Jeu(std::string path);
         void addVoiture(int** board, int id, bool verti, int l, int x, int y);
@@ -22,8 +22,9 @@ class Jeu {
         std::vector<int> list_move(int** board);
         bool dejaVu(int** board);
         void ajoutVu(int** board);
+        bool checkWin(int** board);
 
-        void BFS(int** board);
+        bool BFS(int** board);
 
         void disp(int** board);
 
