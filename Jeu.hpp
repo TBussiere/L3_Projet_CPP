@@ -1,6 +1,7 @@
 #ifndef JEU_HPP
 #define JEU_HPP
 #include <string>
+#include <vector>
 
 class Board;
 class Jeu {
@@ -8,6 +9,8 @@ class Jeu {
         int** board;
         int whidth = 6;
     	int height = 6;
+        int nbVoiture;
+        std::vector<int **> dejaVu;
 
 	    Jeu(std::string path);
         void addVoiture(int** board, int id, bool verti, int l, int x, int y);
@@ -16,7 +19,11 @@ class Jeu {
         int getFirstX(int** board, int id);
         int getFirstY(int** board, int id);
         int moveVoiture(int** board, int id, bool direction);
-        void list_move(int** board, int nbVoiture);
+        std::vector<int> list_move(int** board);
+        bool dejaVu(int** board);
+        void ajoutVu(int** board);
+
+        void BFS(int** board);
 
         void disp(int** board);
 

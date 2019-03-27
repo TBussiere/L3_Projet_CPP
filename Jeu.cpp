@@ -1,11 +1,12 @@
 #include "Jeu.hpp"
 #include <string>
 #include <iostream>
-
+#include <vector>
 
 Jeu::Jeu(std::string path){
 	this->whidth = 6;
 	this->height = 6;
+	this->nbVoiture = 2;
 
 	this->board = new int*[this->whidth];
 	for(int i = 0; i < this->whidth; ++i)
@@ -168,8 +169,8 @@ int Jeu::moveVoiture(int** board, int id, bool direction) {
 }
 
 
-void Jeu::list_move(int** board, int nbVoiture) {
-	for (int id = 1; id <= nbVoiture; id++) {
+std::vector<int> Jeu::list_move(int** board) {
+	for (int id = 1; id <= this->nbVoiture; id++) {
 		int l = this->getLenVoiture(board, id);
 		int x, y;
 		bool trouve = false;
@@ -214,5 +215,26 @@ void Jeu::disp(int** board){
 			std::cout << board[j][i] << " ";
 		}
 		std::cout << std::endl;
+	}
+}
+
+void Jeu::BFS(int** board){
+	std::vector<int> result = this->list_move(board);
+	
+	for(int i = 0; i < result.size(); i+=2)
+	{
+		int ** nboard = new int*[this->whidth];
+		for(int i = 0; i < this->whidth; ++i)
+			nboard[i] = new int[this->height];
+
+		for(int j = 0; j < this->whidth; j++)
+		{
+			for(int k = 0; k < this->height; k++)
+			{
+				nboard[j][k] = board[j][k];
+			}
+		}
+
+		
 	}
 }
