@@ -1,24 +1,11 @@
-#include "Jeu.hpp"
-#include <string>
 #include <iostream>
+#include <cassert>
 #include <vector>
 
-Jeu::Jeu(std::string path){
-	this->whidth = 6;
-	this->height = 6;
+typedef std::vector<int> int_vec_t;
 
-	this->board = new int*[this->whidth];
-	for(int i = 0; i < this->whidth; ++i)
-		this->board[i] = new int[this->height];
 
-	for (int i = 0; i < whidth; ++i) {
-		for (int j = 0; j < height; ++j) {
-			this->board[i][j] = 0;
-		}
-	}
-}
-
-void Jeu::addVoiture(int** board, int id, bool verti, int l, int x, int y) {
+void addVoiture(int board[6][6], int id, bool verti, int l, int x, int y) {
 	// verti: est ce que la voiture est en vertical ou en horizontale
 	// id: id de la voiture
 	// l: longueur de la voiture
@@ -29,7 +16,7 @@ void Jeu::addVoiture(int** board, int id, bool verti, int l, int x, int y) {
 	int b = 0;
 
 	for (int i = 0; i < l; ++i) {
-		this->board[x+a][y+b] = id;
+		board[x+a][y+b] = id;
 		// std::cout << x+a << "/" << y+b << std::endl;
 
 		if(verti) {
@@ -40,11 +27,11 @@ void Jeu::addVoiture(int** board, int id, bool verti, int l, int x, int y) {
 	}
 }
 
-bool Jeu::getOrientationVoiture(int** board, int id) {
+bool getOrientationVoiture(int board[6][6], int id) {
 	// return true si la voiture est en vertical
 
-	for (int i = 0; i < this->height; ++i) {
-		for (int j = 0; this->whidth < 6; ++j) {
+	for (int i = 0; i < 6; ++i) {
+		for (int j = 0; j < 6; ++j) {
 			if (board[i][j] == id) {
 				if(j == 0) {
 					return board[i][j+1] == id;
@@ -59,9 +46,9 @@ bool Jeu::getOrientationVoiture(int** board, int id) {
 	return false;
 }
 
-int Jeu::getLenVoiture(int** board, int id) {
+int getLenVoiture(int board[6][6], int id) {
 	// return la longueur de la voiture
-	bool orientation = this->getOrientationVoiture(board, id);
+	bool orientation = getOrientationVoiture(board, id);
 
 	for (int i = 0; i < 6; ++i) {
 		for (int j = 0; j < 6; ++j) {
@@ -86,7 +73,7 @@ int Jeu::getLenVoiture(int** board, int id) {
 	return -1;
 }
 
-int Jeu::getFirstX(int** board, int id) {
+int getFirstX(int board[6][6], int id) {
 	// return la coordonne x de la premiere case appartenant a la voiture
 
 	for (int i = 0; i < 6; ++i) {
@@ -99,7 +86,7 @@ int Jeu::getFirstX(int** board, int id) {
 	return -1;
 }
 
-int Jeu::getFirstY(int** board, int id) {
+int getFirstY(int board[6][6], int id) {
 	// return la coordonne y de la premiere case appartenant a la voiture
 
 	for (int i = 0; i < 6; ++i) {
@@ -112,7 +99,7 @@ int Jeu::getFirstY(int** board, int id) {
 	return -1;
 }
 
-int Jeu::moveVoiture(int** board, int id, bool direction) {
+int moveVoiture(int board[6][6], int id, bool direction) {
 	// id: id de la voiture a bouger
 	// direction: direction du movement de la voiture
 	// 			  le sens depend de l'orientation de la voiture 
@@ -167,8 +154,7 @@ int Jeu::moveVoiture(int** board, int id, bool direction) {
 	return 0;
 }
 
-
-std::vector<int> Jeu::list_move(int** board, int nbVoiture) {
+std::vector<int> list_move(int board[6][6], int nbVoiture) {
 	std::vector<int> v_move;
 	for (int id = 1; id <= nbVoiture; id++) {
 		int l = getLenVoiture(board, id);
@@ -230,7 +216,27 @@ std::vector<int> Jeu::list_move(int** board, int nbVoiture) {
 	return v_move;
 }
 
-void Jeu::disp(int** board){
+int main() {
+	int whidth = 6;
+	int height = 6;
+
+	int board[6][6];
+
+	for (int i = 0; i < whidth; ++i) {
+		for (int j = 0; j < height; ++j) {
+			board[i][j] = 0;
+		}
+	}
+	// board, id voiture, orientation true=>vertical, longueur, x, y
+	addVoiture(board, 1, true, 2, 1, 3);
+	addVoiture(board, 2, false, 3, 2, 1);
+
+	// std::cout << "add " << getOrientationVoiture(board, 1) << std::endl;
+	// std::cout << "len " << getLenVoiture(board, 2) << std::endl;
+
+	// std::cout << "fpos " << getFirstX(board, 1) << std::endl;
+	// std::cout << "fpos " << getFirstY(board, 1) << std::endl;
+
 	std::cout << "===========" << std::endl;
 	for (int i = 0; i < whidth; ++i) {
 		for (int j = 0; j < height; ++j) {
@@ -238,4 +244,25 @@ void Jeu::disp(int** board){
 		}
 		std::cout << std::endl;
 	}
+
+	std::vector<int> v_move = list_move(board, 2);
+	for (int i = 0; i < v_move.size(); i += 2) {
+		std::cout << "cout possible: " << v_move[i] << "/" << v_move[i+1] << std::endl;
+	}
+
+	// moveVoiture(board, 2, false);
+	// moveVoiture(board, 2, false);
+	// moveVoiture(board, 2, false);
+	moveVoiture(board, 2, true);
+	moveVoiture(board, 2, true);
+
+	std::cout << "===========" << std::endl;
+	for (int i = 0; i < whidth; ++i) {
+		for (int j = 0; j < height; ++j) {
+			std::cout << board[j][i] << " ";
+		}
+		std::cout << std::endl;
+	}
+
+	return 0;
 }
