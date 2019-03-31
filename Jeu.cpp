@@ -29,14 +29,9 @@ Jeu::Jeu(char* path){
 		int id = 1;
 		while (myfile >> a >> b >> c >> d)
 		{
-			bool verti = false;
-			if (d == 1) {
-				verti = true;
-			}
-			else
-			{
-				verti = false;
-			}
+			std::cout << id << " | " << a << std::endl;
+			bool verti = (d == 1);
+
 			// board, id voiture, orientation true=>vertical, longueur, x, y
 			this->addVoiture(board,id++,verti,c,a,b);
 			this->nbVoiture++;
@@ -75,11 +70,11 @@ bool Jeu::getOrientationVoiture(int** board, int id) {
 	// return true si la voiture est en vertical
 
 	for (int i = 0; i < this->height; ++i) {
-		for (int j = 0; this->whidth < 6; ++j) {
+		for (int j = 0;  j < this->whidth; ++j) {
 			if (board[i][j] == id) {
 				if(j == 0) {
 					return board[i][j+1] == id;
-				} else if(j == 5) {
+				} else if(j == this->whidth -1) {
 					return board[i][j-1] == id;
 				} else {
 					return board[i][j+1] == id || board[i][j-1] == id;
@@ -94,14 +89,14 @@ int Jeu::getLenVoiture(int** board, int id) {
 	// return la longueur de la voiture
 	bool orientation = this->getOrientationVoiture(board, id);
 
-	for (int i = 0; i < 6; ++i) {
-		for (int j = 0; j < 6; ++j) {
+	for (int i = 0; i < this->whidth; ++i) {
+		for (int j = 0; j < this->height; ++j) {
 			if (board[i][j] == id) {
 				int a = 0;
 				int b = 0;
 				int len = 0;
 
-				while(i+a < 6 && j+b && board[i+a][j+b] == id) {
+				while(i+a < 6 && j+b < 6 && board[i+a][j+b] == id) {
 				    len++;
 				    if (orientation) {
 						b++;
@@ -240,7 +235,8 @@ std::vector<int> Jeu::list_move(int** board) {
 			}
 			
 		} else {
-			// std::cout << x << "/" << y << "/" << l << std::endl;
+				// std::cout << "id: " << id << std::endl;
+			// std::cout << x << " | " << l << " | " << a << " | " << x+l-1+a << " / " << board[x+l-1+a][y] << std::endl;
 			while(x+l-1+a < 6 && board[x+l-1+a][y] == 0) {
 				// std::cout << "cout possible + : " << id << "/" << a << " | " << 9 << std::endl;
 				v_move.push_back(id);
@@ -256,6 +252,9 @@ std::vector<int> Jeu::list_move(int** board) {
 				b--;
 			}
 		}
+		// if (id == 5) {
+		// 	std::cout << "v_move: " << v_move.size() << std::endl;
+		// }
 	}
 
 	return v_move;
@@ -300,28 +299,29 @@ bool Jeu::BFS(int** board){
 			//gestion du avant arriere
 			bool avancer = false;
 			if (result[i]->nbMoves > 0) {
-				avancer = false;
+				avancer = true;
 			}
 			else
 			{
-				avancer = true;
+				avancer = false;
 				result[i]->nbMoves *= -1; 
 			}
 			//applique le Move fait des truc chelou A VOIR <<<=
 			for(int j = 0; j < result[i]->nbMoves; j++)
 			{
-				this->moveVoiture(nboard,result[i]->carId,avancer);
+				this->moveVoiture(nboard,result[i]->carId, avancer);
 			}
 			boards_results.push_back(nboard);
 		}
-		
+
 		for(int i = 0; i < boards_results.size(); i++)
 		{
-			if (this->dejaVu(boards_results[i])) {
+			if (!this->dejaVu(boards_results[i])) {
 				this->BFSQueue.push(boards_results[i]);
-				this->disp(boards_results[i]);
 				//system("pause");
 				if (this->checkWin(boards_results[i])) {
+					std::cout << "================WIN===========: " << std::endl;
+					this->disp(boards_results[i]);
 					return true;
 				}
 			}
@@ -338,7 +338,7 @@ bool Jeu::dejaVu(int** board) {
 	std::string aTestString = "";
 
 	// on construit un string qui correspond au board
-	for (int id = 1; id < nbv; ++id) {
+	for (int id = 1; id <= nbv; ++id) {
 		aTestString += std::to_string(this->getFirstX(board, id)); aTestString += " ";
 		aTestString += std::to_string(this->getFirstY(board, id)); aTestString += " ";
 		aTestString += std::to_string(this->getLenVoiture(board, id)); aTestString += " ";
@@ -379,6 +379,7 @@ bool Jeu::checkWin(int** board){
 }
 
 std::vector<Move*> Jeu::list_move_to_moves(std::vector<int> tab){
+	// TODO: compresser cette fonction avec list_move
 	
 	std::vector<Move*> resMoves;
 

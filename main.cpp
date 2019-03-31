@@ -3,7 +3,7 @@
 #include "Jeu.hpp"
 
 int main() {
-	Jeu* j = new Jeu("./map.txt");
+	Jeu* j = new Jeu("./map3.txt");
 
 	// std::cout << "add " << getOrientationVoiture(board, 1) << std::endl;
 	// std::cout << "len " << getLenVoiture(board, 2) << std::endl;
@@ -14,6 +14,6 @@ int main() {
 
 	j->disp(j->board);
 	
-	system("pause");
+	// system("pause");
 	return 0;
 }

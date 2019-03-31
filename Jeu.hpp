@@ -10,8 +10,8 @@ class Jeu {
         int** board;
         int whidth = 6;
     	int height = 6;
-        int winx = 2;
-        int winy = 1;
+        int winx = 5;
+        int winy = 2;
         int nbVoiture;
         std::vector<std::string> dejaVus;
         std::queue<int**> BFSQueue;
