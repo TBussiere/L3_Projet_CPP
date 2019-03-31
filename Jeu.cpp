@@ -1,4 +1,5 @@
 #include "Jeu.hpp"
+#include "Move.hpp"
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -18,7 +19,7 @@ Jeu::Jeu(char* path){
 	this->whidth = 6;
 	this->height = 6;
 	this->nbVoiture = 0;
-	
+
 	try
 	{
 		std::ifstream myfile;
@@ -271,59 +272,62 @@ void Jeu::disp(int** board){
 }
 
 bool Jeu::BFS(int** board){
-	// system("pause");
-	std::vector<int> result = this->list_move(board);
-	// system("pause");
-	for(int i = 0; i < result.size(); i+=2)
-	{
-		int ** nboard = new int*[this->whidth];
-		for(int j = 0; j < this->whidth; ++i)
-			nboard[j] = new int[this->height];
 
-		for(int j = 0; j < this->whidth; j++)
+	this->BFSQueue.push(board);
+	this->dejaVu(board);
+
+	while(!this->BFSQueue.empty())
+	{
+		int** curentboard = this->BFSQueue.front();
+		this->BFSQueue.pop();
+
+		std::vector<Move*> result = this->list_move_to_moves(this->list_move(curentboard));
+		std::vector<int**> boards_results;
+		for(int i = 0; i < result.size(); i++)
 		{
-			for(int k = 0; k < this->height; k++)
+			//creation du nouveau tableau temporaire
+			int ** nboard = new int*[this->whidth];
+			for(int j = 0; j < this->whidth; j++)
+				nboard[j] = new int[this->height];
+			//initialisation
+			for(int j = 0; j < this->whidth; j++)
 			{
-				nboard[j][k] = board[j][k];
+				for(int k = 0; k < this->height; k++)
+				{
+					nboard[j][k] = curentboard[j][k];
+				}
+			}
+			//gestion du avant arriere
+			bool avancer = false;
+			if (result[i]->nbMoves > 0) {
+				avancer = false;
+			}
+			else
+			{
+				avancer = true;
+				result[i]->nbMoves *= -1; 
+			}
+			//applique le Move fait des truc chelou A VOIR <<<=
+			for(int j = 0; j < result[i]->nbMoves; j++)
+			{
+				this->moveVoiture(nboard,result[i]->carId,avancer);
+			}
+			boards_results.push_back(nboard);
+		}
+		
+		for(int i = 0; i < boards_results.size(); i++)
+		{
+			if (this->dejaVu(boards_results[i])) {
+				this->BFSQueue.push(boards_results[i]);
+				this->disp(boards_results[i]);
+				//system("pause");
+				if (this->checkWin(boards_results[i])) {
+					return true;
+				}
 			}
 		}
-		bool avancer = false;
-		if (result[i+1] > 0) {
-			avancer = true;
-		}
-		else
-		{
-			avancer = false;
-			result[i+1] *= -1; 
-		}
-		for(int j = 0; j < result[i+1]; j++)
-		{
-			this->moveVoiture(nboard,result[i],avancer);
-		}
-		this->disp(board);
-		// system("pause");
-		if (this->checkWin(nboard)) {
-			return true;
-		}
-		
-
-		if (this->dejaVu(nboard)) {
-			delete[] nboard;
-			continue;
-		}
-
-		if (BFS(nboard)) {
-			delete[] nboard;
-			std::cout << "test" << std::endl;
-			return true;
-		}
-		else
-		{
-			delete[] nboard;
-			return false;
-		}
-		
 	}
+	return false;
 }
 
 bool Jeu::dejaVu(int** board) {
@@ -369,9 +373,20 @@ bool Jeu::dejaVu(int** board) {
 // 	this->dejaVus.push_back(str);
 // }
 
-//==================
-//TODO
-//==================
+
 bool Jeu::checkWin(int** board){
 	return board[this->winx][this->winy] == 1;	
+}
+
+std::vector<Move*> Jeu::list_move_to_moves(std::vector<int> tab){
+	
+	std::vector<Move*> resMoves;
+
+	for(int i = 0; i < tab.size(); i+=2)
+	{
+		Move* tmp = new Move(tab[i],tab[i+1]);
+		
+		resMoves.push_back(tmp);
+	}
+	return resMoves;
 }

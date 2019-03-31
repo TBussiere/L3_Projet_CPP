@@ -2,6 +2,8 @@
 #define JEU_HPP
 #include <string>
 #include <vector>
+#include <queue>
+#include "Move.hpp"
 
 class Jeu {
     public :
@@ -12,6 +14,7 @@ class Jeu {
         int winy = 1;
         int nbVoiture;
         std::vector<std::string> dejaVus;
+        std::queue<int**> BFSQueue;
 
 
 	    Jeu(char* path);
@@ -22,6 +25,7 @@ class Jeu {
         int getFirstY(int** board, int id);
         int moveVoiture(int** board, int id, bool direction);
         std::vector<int> list_move(int** board);
+        std::vector<Move*> list_move_to_moves(std::vector<int> list);
         bool dejaVu(int** board);
         void ajoutVu(int** board);
         bool checkWin(int** board);
