@@ -14,6 +14,6 @@ int main() {
 
 	j->disp(j->board);
 	
-	// system("pause");
+	system("pause");
 	return 0;
 }

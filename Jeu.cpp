@@ -306,7 +306,7 @@ bool Jeu::BFS(int** board){
 				avancer = false;
 				result[i]->nbMoves *= -1; 
 			}
-			//applique le Move fait des truc chelou A VOIR <<<=
+			//applique le Move 
 			for(int j = 0; j < result[i]->nbMoves; j++)
 			{
 				this->moveVoiture(nboard,result[i]->carId, avancer);
@@ -345,10 +345,10 @@ bool Jeu::dejaVu(int** board) {
 		aTestString += std::to_string(this->getOrientationVoiture(board, id)); aTestString += " ";
 	}
 
-	std::vector<std::string> dejaVus = this->dejaVus;
+	//std::vector<std::string> dejaVus = this->dejaVus;
 	// on compare le string a tous les string contenu dans dejaVus
-	for (int i = 0; i < dejaVus.size(); ++i) {
-		if (dejaVus[i] == aTestString)
+	for (int i = 0; i < this->dejaVus.size(); ++i) {
+		if (this->dejaVus[i] == aTestString)
 			return true;
 	}
 
