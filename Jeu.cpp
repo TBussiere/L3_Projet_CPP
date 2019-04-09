@@ -1,6 +1,7 @@
 #include "Jeu.hpp"
 #include "Move.hpp"
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <fstream>
 
@@ -274,8 +275,9 @@ bool Jeu::BFS(int** board){
 
 	this->BFSQueue.push(board);
 	this->dejaVu(board);
+	bool findGoal = false;
 
-	while(!this->BFSQueue.empty())
+	while(!this->BFSQueue.empty() || !findGoal)
 	{
 		int** curentboard = this->BFSQueue.front();
 		this->BFSQueue.pop();
@@ -335,43 +337,32 @@ bool Jeu::dejaVu(int** board) {
 	// si non ajout dans la list des vus
 	int nbv = this->nbVoiture;
 
-	std::string aTestString = "";
+	
+	std::ostringstream oss;
 
 	// on construit un string qui correspond au board
 	for (int id = 1; id <= nbv; ++id) {
-		aTestString += std::to_string(this->getFirstX(board, id)); aTestString += " ";
-		aTestString += std::to_string(this->getFirstY(board, id)); aTestString += " ";
-		aTestString += std::to_string(this->getLenVoiture(board, id)); aTestString += " ";
-		aTestString += std::to_string(this->getOrientationVoiture(board, id)); aTestString += " ";
+		oss << this->getFirstX(board, id);
+		oss << " ";
+		oss << this->getFirstY(board, id);
+		oss << " ";
+		oss << this->getLenVoiture(board, id);
+		oss << " ";
+		oss << this->getOrientationVoiture(board, id);
+		oss << " ";
 	}
+	std::string aTestString = oss.str();
 
 	//std::vector<std::string> dejaVus = this->dejaVus;
 	// on compare le string a tous les string contenu dans dejaVus
-	for (int i = 0; i < this->dejaVus.size(); ++i) {
-		if (this->dejaVus[i] == aTestString)
-			return true;
-	}
+	if (this->dejaVus.find(aTestString) != this->dejaVus.end())
+		return true;
 
 	// si le string est nouveau => on l'ajoute
-	this->dejaVus.push_back(aTestString);
+	//this->dejaVus.push_back(aTestString);
+	this->dejaVus[aTestString] = board;
 	return false;
 }
-
-// void Jeu::ajoutVu(int** board) {
-// 	std::vector<std::string> dejaVus = this->dejaVus;
-// 	int nbv = this->nbVoiture;
-
-// 	std::string str = "";
-
-// 	for (int id = 1; id < nbv; ++id) {
-// 		str += std::to_string(this->getFirstX(board, id));
-// 		str += std::to_string(this->getFirstY(board, id));
-// 		str += std::to_string(this->getLenVoiture(board, id));
-// 		str += std::to_string(this->getOrientationVoiture(board, id));
-// 	}
-
-// 	this->dejaVus.push_back(str);
-// }
 
 
 bool Jeu::checkWin(int** board){

@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <unordered_map>
 #include "Move.hpp"
 
 class Jeu {
@@ -13,7 +14,7 @@ class Jeu {
         int winx = 5;
         int winy = 2;
         int nbVoiture;
-        std::vector<std::string> dejaVus;
+        std::unordered_map<std::string,int**> dejaVus;
         std::queue<int**> BFSQueue;
 
 
@@ -27,7 +28,6 @@ class Jeu {
         std::vector<int> list_move(int** board);
         std::vector<Move*> list_move_to_moves(std::vector<int> list);
         bool dejaVu(int** board);
-        void ajoutVu(int** board);
         bool checkWin(int** board);
 
         bool BFS(int** board);
