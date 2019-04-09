@@ -3,36 +3,41 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <stack>
 #include <unordered_map>
 #include "Move.hpp"
+#include "Board.hpp"
 
 class Jeu {
     public :
-        int** board;
+		Board* board;
         int whidth = 6;
     	int height = 6;
         int winx = 5;
         int winy = 2;
         int nbVoiture;
-        std::unordered_map<std::string,int**> dejaVus;
-        std::queue<int**> BFSQueue;
+        std::unordered_map<std::string, Board*> dejaVus;
+		std::queue<Board*> BFSQueue;
+		std::stack<Board*> resultBFS;
 
-	    Jeu(char* path);
-        void addVoiture(int** board, int id, bool verti, int l, int x, int y);
-        bool getOrientationVoiture(int** board, int id);
-        int getLenVoiture(int** board, int id);
-        int getFirstX(int** board, int id);
-        int getFirstY(int** board, int id);
-        int moveVoiture(int** board, int id, bool direction);
-        std::vector<int> list_move(int** board);
+
+	    Jeu(const char* path);
+        void addVoiture(Board* board, int id, bool verti, int l, int x, int y);
+        bool getOrientationVoiture(Board* board, int id);
+        int getLenVoiture(Board* board, int id);
+        int getFirstX(Board* board, int id);
+        int getFirstY(Board* board, int id);
+        int moveVoiture(Board* board, int id, bool direction);
+        std::vector<int> list_move(Board* board);
         std::vector<Move*> list_move_to_moves(std::vector<int> list);
-        bool dejaVu(int** board);
-        bool checkWin(int** board);
-        int* getPath();
+        bool dejaVu(Board* board);
+        void ajoutVu(Board* board);
+        bool checkWin(Board* board);
 
-        bool BFS(int** board);
+        bool BFS(Board* board);
 
-        void disp(int** board);
+		void disp(Board* board);
+		void dispResult();
 
 
 };

@@ -8,6 +8,7 @@ LDFLAGS +=
 SOURCES = 
 SOURCES += Jeu.cpp
 SOURCES += Move.cpp
+SOURCES += Board.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o)
 
