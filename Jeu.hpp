@@ -17,7 +17,6 @@ class Jeu {
         std::unordered_map<std::string,int**> dejaVus;
         std::queue<int**> BFSQueue;
 
-
 	    Jeu(char* path);
         void addVoiture(int** board, int id, bool verti, int l, int x, int y);
         bool getOrientationVoiture(int** board, int id);
@@ -29,6 +28,7 @@ class Jeu {
         std::vector<Move*> list_move_to_moves(std::vector<int> list);
         bool dejaVu(int** board);
         bool checkWin(int** board);
+        int* getPath();
 
         bool BFS(int** board);
 

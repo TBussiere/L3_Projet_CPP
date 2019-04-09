@@ -5,8 +5,9 @@ class Move {
     public :
         int carId;
         int nbMoves;
+        Move* pred;
 
-        Move(int carId, int nbMoves);
+        Move(int carId, int nbMoves, Move* pred);
 };
 
 #endif
