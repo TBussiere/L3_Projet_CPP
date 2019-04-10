@@ -303,9 +303,11 @@ bool Jeu::BFS(Board* board) {
 
 	this->BFSQueue.push(board);
 	this->dejaVu(board);
+	this->disp(board);
 
 	while (!this->BFSQueue.empty())
 	{
+					// std::cout << "size: " << BFSQueue.size() << std::endl;
 		Board* curentboard = this->BFSQueue.front();
 		this->BFSQueue.pop();
 
@@ -359,6 +361,7 @@ bool Jeu::BFS(Board* board) {
 						this->resultBFS.push(ite);
 						ite = ite->pred;
 					}
+					std::cout << "nb coups: " << resultBFS.size() << std::endl;
 					return true;
 				}
 			}

@@ -12,6 +12,10 @@
 #include <time.h>
 
 
+// beaucoup des fonctions dans ce fichier sont tres similaires a celles dans la classe Jeu
+// elles ont ete adaptees a la creation de board
+// deplus par manque de temps je n'ai pas pu les merge avec celles de Jeu 
+
 bool addVoiture(int** board, int id, bool verti, int l, int x, int y, bool verif) {
 	// verti: est ce que la voiture est en vertical ou en horizontale
 	// id: id de la voiture
@@ -19,7 +23,7 @@ bool addVoiture(int** board, int id, bool verti, int l, int x, int y, bool verif
 	// x, y: coordonnees de la premiere case de la voiture
 	// la voiture remplira les cases a partir de [x][y] avec comme valeur id si il n'y a pas deja de voiture
 	// renvoie si la voiture a ete place
-	// verif: si on verifie
+	// verif: on verifie si la voiture ajoutee n'ecrase pas une deja existante
 
 	int a = 0;
 	int b = 0;
@@ -30,13 +34,9 @@ bool addVoiture(int** board, int id, bool verti, int l, int x, int y, bool verif
 				std::cout << "deja pris!!!!!!!!!!!!" << std::endl;
 				return false;
 			}
-			// std::cout << x+a << "/" << y+b << std::endl;
 
-			if(verti) {
-				b++;
-			} else {
-				a++;
-			}
+			if(verti) { b++; }
+			else { a++; }
 		}
 	}
 
@@ -45,59 +45,46 @@ bool addVoiture(int** board, int id, bool verti, int l, int x, int y, bool verif
 
 	for (int i = 0; i < l; ++i) {
 		board[x+a][y+b] = id;
-		// std::cout << x+a << "/" << y+b << std::endl;
 
-		if(verti) {
-			b++;
-		} else {
-			a++;
-		}
+		if(verti) { b++; }
+		else { a++; }
 	}
 
 	return true;
 }
 
-bool getOrientationVoiture(int** board, int id, int height) {
+bool getOrientationVoiture(int** board, int id, int height, int x, int y) {
 	// return true si la voiture est en vertical
-
-	for (int i = 0; i < height; ++i) {
-		for (int j = 0;  j < height; ++j) {
-			if (board[i][j] == id) {
-				if(j == 0) {
-					return board[i][j+1] == id;
-				} else if(j == height -1) {
-					return board[i][j-1] == id;
-				} else {
-					return board[i][j+1] == id || board[i][j-1] == id;
-				}
+	if(x < height && x >= 0 && y < height && y >= 0) {
+		if (board[x][y] == id) {
+			if(y == 0) {
+				return board[x][y+1] == id;
+			} else if(y == height -1) {
+				return board[x][y-1] == id;
+			} else {
+				return board[x][y+1] == id || board[x][y-1] == id;
 			}
 		}
 	}
 	return false;
 }
 
-int getLenVoiture(int** board, int id, int height) {
+int getLenVoiture(int** board, int id, int height, int x, int y) {
 	// return la longueur de la voiture
-	bool orientation = getOrientationVoiture(board, id, height);
+	if(x < height && x >= 0 && y < height && y >= 0) {
+		bool orientation = getOrientationVoiture(board, id, height, x, y);
+		if (board[x][y] == id) {
+			int a = 0;
+			int b = 0;
+			int len = 0;
 
-	for (int i = 0; i < height; ++i) {
-		for (int j = 0; j < height; ++j) {
-			if (board[i][j] == id) {
-				int a = 0;
-				int b = 0;
-				int len = 0;
-
-				while(i+a < height && j+b < height && board[i+a][j+b] == id) {
-				    len++;
-				    if (orientation) {
-						b++;
-					} else {
-						a++;
-					}
-				}
-
-				return len;
+			while(x+a < height && y+b < height && board[x+a][y+b] == id) {
+			    len++;
+			    if (orientation) { b++; }
+			    else { a++; }
 			}
+
+			return len;
 		}
 	}
 	return -1;
@@ -136,18 +123,11 @@ int moveVoiture(int** board, int id, bool direction, int height) {
 	// 			  true  => vers le bas ou la droite
 	// 			  false => vers la gauche ou le haut
 
-	// int x = getFirstX(board, id);
-	// int y = getFirstY(board, id);
-	int l = getLenVoiture(board, id, height);
 	int x, y;
 	bool trouve = false;
 
-	// todo
-	// a optimiser pour eviter de chercher plusieurs fois les pos des voitures
-	// lors de la recherche de la longueur de la voiture, etc.
 	for (int i = 0; i < height; ++i) {
 		for (int j = 0; j < height; ++j) {
-				// std::cout << i << " ||| " << j << std::endl;
 			if (board[i][j] == id && !trouve) {
 				x = i;
 				y = j;
@@ -155,9 +135,12 @@ int moveVoiture(int** board, int id, bool direction, int height) {
 			}
 		}
 	}
-	// disp(board, height);
-	// std::cout << "x: " << x << " / " << l << std::endl;
-	if (getOrientationVoiture(board, id, height)) { // si vertical
+
+	if(!trouve)
+		return 0;
+
+	int l = getLenVoiture(board, id, height, x, y);
+	if (getOrientationVoiture(board, id, height, x, y)) { // si vertical
 		if(direction) { // vers le bas
 			if(y+l < height && board[x][y+l] == 0) {
 				board[x][y] = 0;
@@ -204,16 +187,10 @@ int get_nb_voiture(int** board, int height) {
 
 std::vector<int> list_move(int** board, int height, int nbVoiture) {
 	std::vector<int> v_move;
-	// TODO: a deplace : int nb_voiture = get_nb_voiture(board, height);
 	for (int id = 1; id <= nbVoiture; id++) {
 
-		int l = getLenVoiture(board, id, height);
 		int x, y;
 		bool trouve = false;
-
-		// todo
-		// a optimiser pour eviter de chercher plusieurs fois les pos des voitures
-		// lors de la recherche de la longueur de la voiture, etc.
 
 		for (int i = 0; i < height; ++i) {
 			for (int j = 0; j < height; ++j) {
@@ -225,48 +202,41 @@ std::vector<int> list_move(int** board, int height, int nbVoiture) {
 			}
 		}
 
+		if(!trouve)
+			return v_move;
+
+		int l = getLenVoiture(board, id, height, x, y);
+
 		int a = 1;
 		int b = -1;
-		bool ori = getOrientationVoiture(board, id, height);
+		bool ori = getOrientationVoiture(board, id, height, x, y);
 
 		if (ori) {
-			// std::cout << x << "/" << y << "/" << l << std::endl;
 			while(y+l-1+a < height && board[x][y+l-1+a] == 0) {
-				// std::cout << "cout possible + : " << id << "/" << a << std::endl;
 				v_move.push_back(id);
 				v_move.push_back(a);
 				a++;
 			}
 
 			while(y+b >= 0 && board[x][y+b] == 0) {
-				// std::cout << "cout possible - : " << id << "/" << b << std::endl;
 				v_move.push_back(id);
 				v_move.push_back(b);
 				b--;
 			}
 			
 		} else {
-				// std::cout << "id: " << id << std::endl;
-			// std::cout << x << " | " << l << " | " << a << " | " << x+l-1+a << " / " << board[x+l-1+a][y] << std::endl;
 			while(x+l-1+a < height && board[x+l-1+a][y] == 0) {
-				// std::cout << "cout possible + : " << id << "/" << a << " | " << 9 << std::elist_move_to_movesndl;
 				v_move.push_back(id);
 				v_move.push_back(a);
 				a++;
 			}
 
-			// std::cout << "	check: " << id << std::endl;
-			// std::cout << "test - : " << id << "/" << b << " | " << x-1+b << std::endl;
 			while(x+b >= 0 && board[x+b][y] == 0) {
-				// std::cout << "cout possible - : " << id << "/" << b << std::endl;
 				v_move.push_back(id);
 				v_move.push_back(b);
 				b--;
 			}
 		}
-		// if (id == 5) {
-		// 	std::cout << "v_move: " << v_move.size() << std::endl;
-		// }
 	}
 
 	return v_move;
@@ -287,29 +257,28 @@ bool dejaVu(Board* board, int height, int nbv, std::unordered_map<std::string, B
 	// test si le board a deja ete vu
 	// si non ajout dans la list des vus
 	std::ostringstream oss;
-	// disp(board->plat, height);
-
+	int x, y;
 	// on construit un string qui correspond au board
 	for (int id = 1; id <= nbv; ++id) {
-		oss << getFirstX(board->plat, id, height);
+		x = getFirstX(board->plat, id, height);
+		y = getFirstY(board->plat, id, height);
+		oss << x;
 		oss << " ";
-		oss << getFirstY(board->plat, id, height);
+		oss << y;
 		oss << " ";
-		oss << getLenVoiture(board->plat, id, height);
+		oss << getLenVoiture(board->plat, id, height, x, y);
 		oss << " ";
-		oss << getOrientationVoiture(board->plat, id, height);
+		oss << getOrientationVoiture(board->plat, id, height, x, y);
 		oss << " ";
 	}
 	std::string aTestString = oss.str();
 
 	// on compare le string a tous les string contenu dans dejaVus
 	if (dejaVus.find(aTestString) != dejaVus.end()) {
-		// std::cout << "	test: " << oss.str() << std::endl;
 		return true;
 	}
 
 	// si le string est nouveau => on l'ajoute
-	//this->dejaVus.push_back(aTestString);
 	dejaVus[aTestString] = board;
 	return false;
 }
@@ -318,8 +287,8 @@ bool checkWin(int** board, int winx, int winy) {
 	return board[winx][winy] == 1;	
 }
 
+
 std::vector<Move*> list_move_to_moves(std::vector<int> tab) {
-	// TODO: compresser cette fonction avec list_move
 	
 	std::vector<Move*> resMoves;
 
@@ -333,14 +302,14 @@ std::vector<Move*> list_move_to_moves(std::vector<int> tab) {
 	return resMoves;
 }
 
+// fonction similaire a celle dans Jeu.cpp 
+// mais qui a ete adaptee a pour renvoyer uniquement le nombre de coup pour resoudre le board
 int BFS(int** board, int height, int winx, int winy) {
 
 	std::unordered_map<std::string, Board*> dejaVus;
     std::queue<Board*> BFSQueue;
     std::stack<Board*> resultBFS;
 	std::vector<Board*> boards_results;
-	std::vector<Board*> next_boards_results;
-	std::vector<Move*> next_result;
 	std::vector<Move*> result;
 
     int nb_voiture = get_nb_voiture(board, height);
@@ -354,9 +323,7 @@ int BFS(int** board, int height, int winx, int winy) {
 		Board* curentboard = BFSQueue.front();
 		BFSQueue.pop();
 
-		next_result = list_move_to_moves(list_move(curentboard->plat, height, nb_voiture));
-		result.swap(next_result);
-		// std::cout << "size: " << result.size() << std::endl;
+		result = list_move_to_moves(list_move(curentboard->plat, height, nb_voiture));
 		
 		for (int i = 0; i < result.size(); i++) {
 			//creation du nouveau tableau temporaire
@@ -365,7 +332,7 @@ int BFS(int** board, int height, int winx, int winy) {
 				platTmp[j] = new int[height];
 
 			Board* nboard = new Board(platTmp, curentboard);
-			//initialisation
+			//initialisationBFS
 			for (int j = 0; j < height; j++) {
 				for (int k = 0; k < height; k++) {
 					nboard->plat[j][k] = curentboard->plat[j][k];
@@ -375,23 +342,20 @@ int BFS(int** board, int height, int winx, int winy) {
 			bool avancer = false;
 			if (result[i]->nbMoves > 0) {
 				avancer = true;
-			}
-			else
-			{
+			} else {
 				avancer = false;
 				result[i]->nbMoves *= -1;
 			}
 			//applique le Move 
-			for (int j = 0; j < result[i]->nbMoves; j++)
-			{
+			for (int j = 0; j < result[i]->nbMoves; j++) {
 				moveVoiture(nboard->plat, result[i]->carId, avancer, height);
 			}
-			next_boards_results.push_back(nboard);
+			boards_results.push_back(nboard);
 		}
-		boards_results.swap(next_boards_results);
 		result.clear();
 
 		for (int i = 0; i < boards_results.size(); i++) {
+
 			if (!dejaVu(boards_results[i], height, nb_voiture, dejaVus)) {
 				BFSQueue.push(boards_results[i]);
 
@@ -402,20 +366,38 @@ int BFS(int** board, int height, int winx, int winy) {
 						ite = ite->pred;
 					}
 					// std::cout << "================WIN===========: " << std::endl;
-					// this->disp(boards_results[i]);
+					int size = resultBFS.size();
 					dejaVus.clear();
-					return resultBFS.size();
+					result.clear();
+					boards_results.clear();
+					while(!resultBFS.empty()) {
+						resultBFS.pop();
+					}
+
+					while(!BFSQueue.empty()) {
+						BFSQueue.pop();
+					}
+					return size;
 				}
 			}
 		}
 		boards_results.clear();
 	}
+
+	boards_results.clear();
 	dejaVus.clear();
+	result.clear();
+	while(!resultBFS.empty()) {
+		resultBFS.pop();
+	}
+
+	while(!BFSQueue.empty()) {
+		BFSQueue.pop();
+	}
 	return -1;
 }
 
 std::vector<int> list_pos(int** board, int height) {
-	// std::cout << "debut" << std::endl;
 	// return toutes les positions ou on peut mettre une voiture
 	std::vector<int> v_pos;
 	int a, b;
@@ -450,8 +432,8 @@ std::vector<int> list_pos(int** board, int height) {
 	return v_pos;
 }
 
+// fonction obsolete
 void removeVoiture(int** board, int id, int height) {
-	// std::cout << "	: " << result_moves.size() << std::endl;
 	for (int i = 0; i < height; ++i) {
 		for (int j = 0; j < height; ++j) {
 			if(board[i][j] == id)
@@ -460,6 +442,7 @@ void removeVoiture(int** board, int id, int height) {
 	}
 }
 
+// fonction obsolete
 void decalage(int** board, int height, int nb_voiture) { // change l'id de toutes les voitures pour que l'on ait bien des voitures numerotes de 1 a nb_voiture
 	int remp = 0;
 	for (int id = 1; id < nb_voiture; ++id) {
@@ -477,9 +460,8 @@ void decalage(int** board, int height, int nb_voiture) { // change l'id de toute
 }
 
 void Board_creator(int height, int width, int nb_board_voulues, int nb_coup_min) {
-
-	std::unordered_map<std::string, Board*> dejaVus; // contient les board deja parcourus
-    std::queue<Board*> queue;
+	// cree des boards qui sont affiches a la fin de la fonction
+	// on pourrait evantuellement changer la fonction pour renvoyer
 
 	srand((unsigned)time(0));
 
@@ -488,8 +470,22 @@ void Board_creator(int height, int width, int nb_board_voulues, int nb_coup_min)
 	bool ori;
 	int l, x, y;
 	bool remplis;
-	for (int p = 1; p < 50; ++p) {
-		int ** board = new int*[width];
+
+	int** c_board;
+	int winx;
+	int winy;
+	bool faisable;
+	int a;
+	int c_id;
+	int ** board;
+
+	std::vector<Board*> boards_created; // les boards crees et a renvoyees
+	while(nb_board_voulues > boards_created.size()) {
+		// on cree aleatoirement un board en inserant un nombre de voiture
+		// puis on regarde si il est resolvable en plus de
+		// nb_coup_min, sinon on le delete
+
+		board = new int*[width];
 		for(int i = 0; i < width; ++i)
 			board[i] = new int[height];
 		
@@ -500,198 +496,74 @@ void Board_creator(int height, int width, int nb_board_voulues, int nb_coup_min)
 		}
 
 		Board* nboard = new Board(board, nullptr);
-		addVoiture(board, 1, 1, 3, 0, 0, false);
+		addVoiture(nboard->plat, 1, 1, 2, 0, 0, false);
+		remplis = false;
 
-		for (int id = 2; id <= nb_coup_min && !remplis; ++id) { // preremplissage aleatoire du board pour accelerer l'arriver
-			l_pos = list_pos(board, height);            // un nombre de voiture a partir duquel on peut commencer
+		for (int id = 2; id <= 13 && !remplis; ++id) { // preremplissage aleatoire du board pour accelerer l'arriver
+			l_pos = list_pos(nboard->plat, height);            // un nombre de voiture a partir duquel on peut commencer
 			if(l_pos.size() > 0) {
 				ri = (rand() % (l_pos.size()) / 4);         // a avoir des board non finissables en 1 ou 2 coups
 				ori = l_pos[ri*4]; l = l_pos[ri*4 +1]; x = l_pos[ri*4 +2]; y = l_pos[ri*4 +3];
-				addVoiture(board, id, ori, l, x, y, false);
-			} else
+				addVoiture(nboard->plat, id, ori, l, x, y, true);
+			} else{
 				remplis = true;
 
+			}
 		}
 
-		queue.push(nboard);
-		dejaVu(nboard, height, 0, dejaVus);
-	}
+		// on retrouve la position sur laquelle deplacee la voiture 1
+		winy = height -1; winx = height -1;
+		int x = getFirstX(nboard->plat, 1, height);
+		int y = getFirstY(nboard->plat, 1, height);
 
-	std::cout << "	phase 2: " << std::endl;
-	std::vector<Board*> boards_created; // les boards crees et a renvoyer
-	std::vector<Board*> boards_results; // les boards checker la difficulte
-	std::vector<int> result_pos;
-	std::vector<Move*> result_moves;
-    
-	bool trouve = false; // si on a finis de creer des board
+		ori = getOrientationVoiture(nboard->plat, 1, height, x, y);
 
-	while(!queue.empty() && !trouve && nb_board_voulues > boards_created.size()) {
-	    Board* curentboard = queue.front();
-		queue.pop();
-		// disp(curentboard->plat, height);
+		if(ori) { winx = x; }
+		else    { winy = y; }
+
+		x = getFirstX(nboard->plat, 1, height);
+		y = getFirstY(nboard->plat, 1, height);
+
+
+		c_board = nboard->plat;
+		faisable = true;
+
+		// on essaye de voir s'il y a une voiture en travers du chemin
+		// en regardant si il y a 2 cases non vides consecutives qui ont le meme id
+		a = 0; c_id = 0;
+
+		if(ori) {
+			while(y+a+l-1 < height) {
+			    if(c_board[x][y+l+a-1] != 0) {
+			    	if(c_board[x][y+a+l-1] == c_id) { faisable = false; }
+			    	else { c_id = c_board[x][y+a+l-1]; }
+				}
+				a++;
+			}
+		} else {
+			while(x+a+l-1 < height) {
+			    if(c_board[x+a+l-1][y] != 0) {
+			    	if(c_board[x+a+l-1][y] == c_id) { faisable = false; }
+			    	else { c_id = c_board[x+a+l-1][y]; }
+				}
+				a++;
+			}
+		}
+
+		int nb_coups = -1;
+		if(faisable){ // on check en combien de coups est resolvable le board
+			nb_coups = BFS(nboard->plat, height, winx, winy);
+		}
 		
-		int nb_voiture = get_nb_voiture(curentboard->plat, height);
-		result_pos = list_pos(curentboard->plat, height);
-		std::vector<Move*> result_moves = list_move_to_moves(list_move(curentboard->plat, height, nb_voiture));
-
-		// std::cout << "	result_moves: " << result_moves.size() << std::endl;
-		for (int i = 0; i < result_moves.size(); i++) {
-			// std::cout << i << std::endl;
-			//creation du nouveau tableau temporaire
-			int ** platTmp = new int*[height];
-			for (int j = 0; j < height; j++)
-				platTmp[j] = new int[height];
-
-			Board* nboard = new Board(platTmp, nullptr);
-
-			//initialisation
-			for (int j = 0; j < height; j++) {
-				for (int k = 0; k < height; k++) {
-					nboard->plat[j][k] = curentboard->plat[j][k];
-				}
-			}
-
-			//gestion du avant arriere
-			bool avancer = false;
-			if (result_moves[i]->nbMoves > 0)
-				avancer = true;
-			else {
-				avancer = false;
-				result_moves[i]->nbMoves *= -1;
-			}
-
-			//applique le Move 
-			for (int j = 0; j < result_moves[i]->nbMoves; j++) {
-				moveVoiture(nboard->plat, result_moves[i]->carId, avancer, height);
-			}	
-			boards_results.push_back(nboard);
-		}
-		result_moves.clear();
-
-		// std::cout << "	add: " << result_pos.size() << std::endl;
-		for (int i = 0; i+5 < result_pos.size(); i+=4) {
-			//creation du nouveau tableau temporaire
-			int ** platTmp = new int*[height];
-			for (int j = 0; j < height; j++)
-				platTmp[j] = new int[height];
-
-			// std::cout << "	check interne: " << platTmp == 0 << std::endl;
-			Board* nboard = new Board(platTmp, nullptr);
-
-			//initialisation
-			for (int j = 0; j < height; j++) {
-				for (int k = 0; k < height; k++) {
-					nboard->plat[j][k] = curentboard->plat[j][k];
-				}
-			}
-
-			ori = result_pos[i];
-			l = result_pos[i +1];
-			x = result_pos[i +2];
-			y = result_pos[i +3];
-			// std::cout << "	ori: " << ori << " | l: " << l << " | x: " << x << " | y: " << y << std::endl;
-
-			addVoiture(nboard->plat, nb_voiture+1, ori, l, x, y, false); // TODO : a enlever quand je serais sur que ca marche
-				boards_results.push_back(nboard);
-		}
-		result_pos.clear();
-
-		// std::cout << "	remove: " << nb_voiture << std::endl;
-		for (int id = 1; false && id <= nb_voiture; id++) {
-			//creation du nouveau tableau temporaire
-			int ** platTmp = new int*[height];
-			for (int j = 0; j < height; j++)
-				platTmp[j] = new int[height];
-
-			Board* nboard = new Board(platTmp, nullptr);
-
-			//initialisation
-			for (int j = 0; j < height; j++) {
-				for (int k = 0; k < height; k++) {
-					nboard->plat[j][k] = curentboard->plat[j][k];
-				}
-			}
-			decalage(nboard->plat, height, nb_voiture);
-			removeVoiture(nboard->plat, id, height);
-			boards_results.push_back(nboard);
-		}
-
-		for (int i = 0; !trouve && i < boards_results.size(); i++) {
-
-			int nbVoiture = get_nb_voiture(boards_results[i]->plat, height);
-			if (!dejaVu(boards_results[i], height, nbVoiture, dejaVus)) {
-				// std::cout << "	check interne: " << dejaVus.size() << std::endl;
-
-				int winy = height -1; int winx = height -1;
-				int ori = getOrientationVoiture(boards_results[i]->plat, 1, height);
-
-				if(ori) { winx = getFirstX(boards_results[i]->plat, 1, height); }
-				else    { winy = getFirstY(boards_results[i]->plat, 1, height); }
-
-				x = getFirstX(boards_results[i]->plat, 1, height);
-				y = getFirstY(boards_results[i]->plat, 1, height);
-				int** c_board = boards_results[i]->plat;
-				bool faisable = true;
-
-					// disp(boards_results[i]->plat, height);
-				// on essaye de voir s'il y a une voiture en travers du chemin
-				if(ori) {
-					int a = 0;
-					int c_id = 0;
-					while(y+a+l < height) {
-					    if(c_board[x][y+l+a] != 0) {
-					    	if(c_board[x][y+a] == c_id) {
-					    		faisable = false;
-
-					    	}
-					    	else
-								c_id = c_board[x][y+a+l];
-
-						}
-						a++;
-					}
-				} else {
-					int a = 0;
-					int c_id = 0;
-					while(x+a+l < height) {
-					    if(c_board[x+a+l][y] != 0) {
-					    	if(c_board[x+a+l][y] == c_id) {
-					    		faisable = false;
-					    	}
-					    	else
-								c_id = c_board[x+a+l][y];
-
-						}
-						a++;
-					}
-				}
-
-				int nb = -1;
-				if(faisable)
-					nb = BFS(boards_results[i]->plat, height, winx, winy);
-				
-				if(nb != -1)
-					queue.push(boards_results[i]);
-				// std::cout << "	: " << nb << std::endl;
-				// disp(boards_results[i]->plat, height);
-				
-				if(nb >= nb_coup_min) {
-					std::cout << "created: " << nb << std::endl;
-					// disp(boards_results[i]->plat, height);
-					boards_created.push_back(boards_results[i]);
-					if(boards_created.size() > nb_board_voulues)
-						trouve = true;
-				}
-			}
-		}
-
-		if(queue.size() > 100) { // on reduit la taille de la queue en jetant des boards qui sont surement inutiles
-			for (int i = 0; i < queue.size() / 10; ++i) {
-				queue.pop();
-			}
+		if(nb_coups >= nb_coup_min) { // on regarde si le board est assez complexe
+			std::cout << "created: " << nb_coups << std::endl;
+			boards_created.push_back(nboard);
+		} else { // si il n'est pas assez complexe on le delete
+			delete nboard;
 		}
 	}
 
+	// affichage final des boards crees
 	for (int i = 0; i < boards_created.size(); ++i) {
 		disp(boards_created[i]->plat, height);
 	}
