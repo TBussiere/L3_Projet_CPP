@@ -7,30 +7,35 @@
 #include <fstream>
 
 Jeu::Jeu(const char* path) {
-
+	//creation du tableau a 2 dimention temporaire
 	int** plat = new int*[this->whidth];
 	for (int i = 0; i < this->whidth; ++i)
 		plat[i] = new int[this->height];
-
+	//le remplir de 0 qui une case libre
 	for (int i = 0; i < whidth; ++i) {
 		for (int j = 0; j < height; ++j) {
 			plat[i][j] = 0;
 		}
 	}
-
+	//initialise le board
 	this->board = new Board(plat, nullptr);
-
+	//initialisation des tailles (fix)
 	this->whidth = 6;
 	this->height = 6;
 	this->nbVoiture = 0;
 
+	//Lecture du fichier map
 	try
 	{
+		//le stream
 		std::ifstream myfile;
+		//on l'ouvre
 		myfile.open(path);
 		int a, b, c, d;
+		//on lit la sorti
 		myfile >> this->winx >> this->winy;
 		int id = 1;
+		//on le rempli avec le reste
 		while (myfile >> a >> b >> c >> d)
 		{
 			std::cout << id << " | " << a << std::endl;
@@ -40,11 +45,35 @@ Jeu::Jeu(const char* path) {
 			this->addVoiture(board, id++, verti, c, a, b);
 			this->nbVoiture++;
 		}
+		//fermeture du fichier
+		myfile.close();
 
 	}
 	catch (const std::exception& e)
 	{
+		//si il ya un erreur on l'a print
 		std::cerr << e.what() << '\n';
+	}
+}
+//deleteur de la class jeu
+Jeu::~Jeu() {
+	delete board;
+	//clear appele le destructeur
+	this->dejaVus.clear();
+	if (!BFSQueue.empty())
+	{
+		while (!BFSQueue.empty())
+		{
+			//pop appele le destructeur
+			BFSQueue.pop();
+		}
+	}
+	if (!resultBFS.empty())
+	{
+		while (!resultBFS.empty())
+		{
+			resultBFS.pop();
+		}
 	}
 }
 
@@ -60,8 +89,6 @@ void Jeu::addVoiture(Board* board, int id, bool verti, int l, int x, int y) {
 
 	for (int i = 0; i < l; ++i) {
 		this->board->plat[x + a][y + b] = id;
-		// std::cout << x+a << "/" << y+b << std::endl;
-
 		if (verti) {
 			b++;
 		}
@@ -153,15 +180,10 @@ int Jeu::moveVoiture(Board* board, int id, bool direction) {
 	// 			  true  => vers le bas ou la droite
 	// 			  false => vers la gauche ou le haut
 
-	// int x = getFirstX(board, id);
-	// int y = getFirstY(board, id);
 	int l = getLenVoiture(board, id);
 	int x, y;
 	bool trouve = false;
 
-	// todo
-	// a optimiser pour eviter de chercher plusieurs fois les pos des voitures
-	// lors de la recherche de la longueur de la voiture, etc.
 	for (int i = 0; i < 6; ++i) {
 		for (int j = 0; j < 6; ++j) {
 			if (board->plat[i][j] == id && !trouve) {
@@ -211,9 +233,6 @@ std::vector<int> Jeu::list_move(Board* board) {
 		int x, y;
 		bool trouve = false;
 
-		// todo
-		// a optimiser pour eviter de chercher plusieurs fois les pos des voitures
-		// lors de la recherche de la longueur de la voiture, etc.
 
 		for (int i = 0; i < 6; ++i) {
 			for (int j = 0; j < 6; ++j) {
@@ -230,16 +249,13 @@ std::vector<int> Jeu::list_move(Board* board) {
 		bool ori = getOrientationVoiture(board, id);
 
 		if (ori) {
-			// std::cout << x << "/" << y << "/" << l << std::endl;
 			while (y + l - 1 + a < 6 && board->plat[x][y + l - 1 + a] == 0) {
-				// std::cout << "cout possible + : " << id << "/" << a << std::endl;
 				v_move.push_back(id);
 				v_move.push_back(a);
 				a++;
 			}
 
 			while (y + b >= 0 && board->plat[x][y + b] == 0) {
-				// std::cout << "cout possible - : " << id << "/" << b << std::endl;
 				v_move.push_back(id);
 				v_move.push_back(b);
 				b--;
@@ -247,26 +263,18 @@ std::vector<int> Jeu::list_move(Board* board) {
 
 		}
 		else {
-			// std::cout << "id: " << id << std::endl;
-		// std::cout << x << " | " << l << " | " << a << " | " << x+l-1+a << " / " << board[x+l-1+a][y] << std::endl;
 			while (x + l - 1 + a < 6 && board->plat[x + l - 1 + a][y] == 0) {
-				// std::cout << "cout possible + : " << id << "/" << a << " | " << 9 << std::endl;
 				v_move.push_back(id);
 				v_move.push_back(a);
 				a++;
 			}
 
-			// std::cout << "test - : " << id << "/" << b << " | " << x-1+b << std::endl;
 			while (x + b >= 0 && board->plat[x + b][y] == 0) {
-				// std::cout << "cout possible - : " << id << "/" << b << std::endl;
 				v_move.push_back(id);
 				v_move.push_back(b);
 				b--;
 			}
 		}
-		// if (id == 5) {
-		// 	std::cout << "v_move: " << v_move.size() << std::endl;
-		// }
 	}
 
 	return v_move;
@@ -285,7 +293,7 @@ void Jeu::disp(Board* board) {
 void Jeu::dispResult() {
 	std::stack<Board*> copyResultBFS = this->resultBFS;
 
-	while(!copyResultBFS.empty()) {
+	while (!copyResultBFS.empty()) {
 		this->disp(copyResultBFS.top());
 		copyResultBFS.pop();
 	}
@@ -301,6 +309,7 @@ bool Jeu::BFS(Board* board) {
 		Board* curentboard = this->BFSQueue.front();
 		this->BFSQueue.pop();
 
+
 		std::vector<Move*> result = this->list_move_to_moves(this->list_move(curentboard));
 		std::vector<Board*> boards_results;
 		for (int i = 0; i < result.size(); i++)
@@ -310,7 +319,7 @@ bool Jeu::BFS(Board* board) {
 			for (int j = 0; j < this->whidth; j++)
 				platTmp[j] = new int[this->height];
 
-			Board* nboard = new Board(platTmp, curentboard);
+			Board* nboard = new Board(platTmp,curentboard);
 			//initialisation
 			for (int j = 0; j < this->whidth; j++)
 			{
@@ -344,7 +353,6 @@ bool Jeu::BFS(Board* board) {
 				//system("pause");
 				if (this->checkWin(boards_results[i])) {
 					std::cout << "================WIN===========: " << std::endl;
-					// this->disp(boards_results[i]);
 					Board* ite = boards_results[i];
 					while (ite->pred != nullptr)
 					{
@@ -355,7 +363,6 @@ bool Jeu::BFS(Board* board) {
 				}
 			}
 		}
-		boards_results.clear();
 	}
 	return false;
 }
@@ -380,11 +387,11 @@ bool Jeu::dejaVu(Board* board) {
 		oss << " ";
 	}
 	std::string aTestString = oss.str();
-
-	//std::vector<std::string> dejaVus = this->dejaVus;
+	oss.clear();
 	// on compare le string a tous les string contenu dans dejaVus
-	if (this->dejaVus.find(aTestString) != this->dejaVus.end())
+	if (this->dejaVus.find(aTestString) != this->dejaVus.end()){
 		return true;
+	}
 
 	// si le string est nouveau => on l'ajoute
 	//this->dejaVus.push_back(aTestString);
@@ -392,19 +399,12 @@ bool Jeu::dejaVu(Board* board) {
 	return false;
 }
 
-/*
-void Jeu::ajoutVu(int** board) {
-	return this->dejaVus.find(aTestString) != this->dejaVus.end();
-}*/
-
 
 bool Jeu::checkWin(Board* board) {
 	return board->plat[this->winx][this->winy] == 1;
 }
 
 std::vector<Move*> Jeu::list_move_to_moves(std::vector<int> tab) {
-	// TODO: compresser cette fonction avec list_move
-
 	std::vector<Move*> resMoves;
 
 	for (int i = 0; i < tab.size(); i += 2)

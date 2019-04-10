@@ -9,6 +9,7 @@
 #include <queue>
 #include <stack>
 #include <unordered_map>
+#include <time.h>
 
 
 bool addVoiture(int** board, int id, bool verti, int l, int x, int y, bool verif) {

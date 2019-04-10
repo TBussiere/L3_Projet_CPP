@@ -6,6 +6,11 @@ Board::Board(int** plat, Board* pred) {
 }
 
 Board::~Board() {
+	for (int i = 0; i < 6; i++)
+	{
+		delete[] this->plat[i];
+	}
+
 	delete[] plat;
 	delete[] pred;
 }
