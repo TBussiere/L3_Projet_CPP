@@ -285,8 +285,7 @@ void Jeu::disp(Board* board) {
 void Jeu::dispResult() {
 	std::stack<Board*> copyResultBFS = this->resultBFS;
 
-	for (int i = 0; i < copyResultBFS.size(); i++)
-	{
+	while(!copyResultBFS.empty()) {
 		this->disp(copyResultBFS.top());
 		copyResultBFS.pop();
 	}
@@ -345,6 +344,7 @@ bool Jeu::BFS(Board* board) {
 				//system("pause");
 				if (this->checkWin(boards_results[i])) {
 					std::cout << "================WIN===========: " << std::endl;
+					// this->disp(boards_results[i]);
 					Board* ite = boards_results[i];
 					while (ite->pred != nullptr)
 					{
@@ -355,6 +355,7 @@ bool Jeu::BFS(Board* board) {
 				}
 			}
 		}
+		boards_results.clear();
 	}
 	return false;
 }

@@ -7,6 +7,7 @@ public:
 	Board* pred;
 
 	Board(int** plat, Board* pred);
+	~ Board();
 };
 
 #endif

@@ -9,6 +9,7 @@ SOURCES =
 SOURCES += Jeu.cpp
 SOURCES += Move.cpp
 SOURCES += Board.cpp
+SOURCES += Board_creator.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o)
 
